@@ -5,76 +5,40 @@ import Text from '@tiptap/extension-text';
 import styled from 'styled-components';
 import Bold from '@tiptap/extension-bold';
 import { DOMParser } from 'prosemirror-model';
+import DropCursor from '@tiptap/extension-dropcursor';
+import Image from '@tiptap/extension-image';
 
-// const EditorContainer = styled.div`
-// margin: 100px 50px;
-// min-height: 500px;
-// display: flex;
-// flex-direction: column;
+const EditorWrapper = styled.div`
+  margin: 100px 50px;
+  min-height: 500px;
+  display: flex;
+  flex-direction: column;
 
-//   > div,
-//   .ProseMirror {
-//     width: 100%;
-//     min-width: 100%;
-//     height: 100%;
-//     min-height: 500px;
-//   }
-//   .ProseMirror {
-//     border: 1px solid red;
-//   }
+  > div,
+  .ProseMirror {
+    width: 100%;
+    min-width: 100%;
+    height: 100%;
+    min-height: 500px;
+  }
+  .ProseMirror {
+    border: 1px solid red;
+  }
 
-//   .ProseMirror-focused {
-//     outline: none;
-//   }
+  .ProseMirror-focused {
+    outline: none;
+  }
 
-//   .paragraph {
-//     margin: 0;
-//     color: blue;
-//   }
-// `
+  .paragraph {
+    margin: 0;
+    color: blue;
+  }
 
-// const Tiptap = () => {
-//   const editor = useEditor({
-//     extensions: [
-//       Text,
-//       Document,
-//       Paragraph.configure({
-//         HTMLAttributes: {
-//           class: 'paragraph',
-//         },
-//       }),
-//       Bold
-//     ],
-//     content: 'Hello World!',
-//   })
-
-//   return (
-//     <EditorContainer>
-//       <EditorContent editor={editor} />
-//       <button onClick={() => {
-//         console.log(editor.getJSON())
-//       }}>submit</button>
-//     </EditorContainer>
-//   )
-// }
-
-// export default Tiptap
-
-function elementFromString(value) {
-  const element = document.createElement('div');
-  element.innerHTML = value.trim();
-
-  return element;
-}
-
-function insertHTML({ state, view }, value) {
-  const { selection } = state;
-  const element = elementFromString(value);
-  const slice = DOMParser.fromSchema(state.schema).parseSlice(element);
-  const transaction = state.tr.insert(selection.anchor, slice.content);
-
-  view.dispatch(transaction);
-}
+  .editor-image {
+    width: 100%;
+    height: auto;
+  }
+`;
 
 const readImage = (event) =>
   new Promise((resolve, reject) => {
@@ -211,7 +175,19 @@ const MenuBar = ({ editor }) => {
 
 const Tiptap = () => {
   const editor = useEditor({
-    extensions: [Text, Document, Paragraph],
+    extensions: [
+      Text,
+      Document,
+      Paragraph,
+      DropCursor,
+      Image.configure({
+        allowBase64: true,
+        HTMLAttributes: {
+          class: 'editor-image',
+        },
+      }),
+      Bold,
+    ],
     content: `
       <h2>
         Hi there,
@@ -245,7 +221,7 @@ const Tiptap = () => {
   });
 
   return (
-    <div>
+    <EditorWrapper>
       <MenuBar editor={editor} />
       <EditorContainer
         onDragOver={(event) => {
@@ -260,18 +236,15 @@ const Tiptap = () => {
         onDrop={(event) => {
           event.stopPropagation();
           event.preventDefault();
-          // const fileList = event.dataTransfer.files;
-          // document.querySelector('#file_name').textContent = fileList[0].name;
           readImage(event).then((resp) => {
-            console.log('then', resp);
-            const imageTag = `<img alt='new-added-image' src=${resp} width="50px" height="50px"/>`;
-            insertHTML(editor, imageTag);
+            // console.log('then', resp);
+            editor.commands.setImage({ src: resp });
           });
         }}
       >
         <EditorContent editor={editor} />
       </EditorContainer>
-    </div>
+    </EditorWrapper>
   );
 };
 

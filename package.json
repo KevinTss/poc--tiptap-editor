@@ -5,6 +5,8 @@
   "dependencies": {
     "@tiptap/extension-bold": "^2.0.0-beta.26",
     "@tiptap/extension-document": "^2.0.0-beta.15",
+    "@tiptap/extension-dropcursor": "^2.0.0-beta.25",
+    "@tiptap/extension-image": "^2.0.0-beta.27",
     "@tiptap/extension-paragraph": "^2.0.0-beta.23",
     "@tiptap/extension-text": "^2.0.0-beta.15",
     "@tiptap/react": "^2.0.0-beta.108",
