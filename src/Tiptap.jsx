@@ -4,6 +4,7 @@ import Paragraph from '@tiptap/extension-paragraph';
 import Text from '@tiptap/extension-text';
 import styled from 'styled-components';
 import Bold from '@tiptap/extension-bold';
+import { DOMParser } from 'prosemirror-model';
 
 // const EditorContainer = styled.div`
 // margin: 100px 50px;
@@ -58,6 +59,40 @@ import Bold from '@tiptap/extension-bold';
 // }
 
 // export default Tiptap
+
+function elementFromString(value) {
+  const element = document.createElement('div');
+  element.innerHTML = value.trim();
+
+  return element;
+}
+
+function insertHTML({ state, view }, value) {
+  const { selection } = state;
+  const element = elementFromString(value);
+  const slice = DOMParser.fromSchema(state.schema).parseSlice(element);
+  const transaction = state.tr.insert(selection.anchor, slice.content);
+
+  view.dispatch(transaction);
+}
+
+const readImage = (event) =>
+  new Promise((resolve, reject) => {
+    const fileList = event.dataTransfer.files;
+    const file = fileList[0];
+    const reader = new FileReader();
+    reader.addEventListener('load', (event) => {
+      const uploaded_image = event.target.result;
+      console.log('ing', uploaded_image);
+      //  document.querySelector("#image_drop_area").style.backgroundImage  = `url(${uploaded_image})`;
+      resolve(uploaded_image);
+    });
+    reader.readAsDataURL(file);
+  });
+
+const EditorContainer = styled.div`
+  border: 1px solid red;
+`;
 
 const MenuBar = ({ editor }) => {
   if (!editor) {
@@ -212,8 +247,30 @@ const Tiptap = () => {
   return (
     <div>
       <MenuBar editor={editor} />
-
-      <EditorContent editor={editor} />
+      <EditorContainer
+        onDragOver={(event) => {
+          event.stopPropagation();
+          event.preventDefault();
+          event.dataTransfer.dropEffect = 'copy';
+          console.group();
+          // console.log('datatr', e.dataTransfer);
+          console.log('enter', event);
+          console.groupEnd();
+        }}
+        onDrop={(event) => {
+          event.stopPropagation();
+          event.preventDefault();
+          // const fileList = event.dataTransfer.files;
+          // document.querySelector('#file_name').textContent = fileList[0].name;
+          readImage(event).then((resp) => {
+            console.log('then', resp);
+            const imageTag = `<img alt='new-added-image' src=${resp} width="50px" height="50px"/>`;
+            insertHTML(editor, imageTag);
+          });
+        }}
+      >
+        <EditorContent editor={editor} />
+      </EditorContainer>
     </div>
   );
 };
