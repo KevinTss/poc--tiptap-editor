@@ -2,7 +2,7 @@ import { EditorContent } from '@tiptap/react';
 import styled from 'styled-components';
 
 import { readImage } from './utils';
-import useEditor from './useEditor';
+import useEditor, { CLASS_NAMES } from './useEditor';
 import MenuBar from './MenuBar';
 
 const EditorWrapper = styled.div`
@@ -18,28 +18,29 @@ const EditorWrapper = styled.div`
     height: 100%;
     min-height: 500px;
   }
+
   .ProseMirror {
     border: 1px solid red;
+
+    .${CLASS_NAMES.p} {
+      margin: 2px 0;
+    }
   }
 
   .ProseMirror-focused {
     outline: none;
   }
 
-  .ProseMirror-hideselection {
-    img {
-      border: 2px solid blue;
-    }
-  }
-
-  .paragraph {
-    margin: 0;
-    color: blue;
-  }
-
-  .editor-image {
+  .${CLASS_NAMES.image} {
     width: 100%;
     height: auto;
+    position: relative;
+    border: 2px solid transparent;
+    box-sizing: border-box;
+
+    &.ProseMirror-selectednode {
+      border: 2px solid blue !important;
+    }
   }
 `;
 
@@ -78,6 +79,13 @@ const Tiptap = () => {
       >
         <EditorContent editor={editor} />
       </EditorContainer>
+      <button
+        onClick={() => {
+          console.log('result', editor.getJSON());
+        }}
+      >
+        Submit
+      </button>
     </EditorWrapper>
   );
 };
