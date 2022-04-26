@@ -59,10 +59,6 @@ const Tiptap = () => {
           event.stopPropagation();
           event.preventDefault();
           event.dataTransfer.dropEffect = 'copy';
-          console.group();
-          // console.log('datatr', e.dataTransfer);
-          console.log('enter', event);
-          console.groupEnd();
         }}
         onDrop={(event) => {
           event.stopPropagation();
